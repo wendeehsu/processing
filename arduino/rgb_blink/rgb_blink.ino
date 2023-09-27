@@ -4,18 +4,10 @@
   Goal: Blink for 8 different colors.
 */
 void setup() {
-  // put your setup code  here, to run once:
+  // set pin output
   pinMode(LEDR, OUTPUT);
   pinMode(LEDG, OUTPUT);
   pinMode(LEDB, OUTPUT);
-
-  for(int i = 0; i < 2; i++) {
-    for(int j = 0; j < 2; j++) {
-      for(int k = 0; k < 2; k++) {
-        Serial.println(i + " " + j + " " + k);
-      }
-    }
-  }
 }
 
 void loop() {
@@ -24,7 +16,6 @@ void loop() {
   for(int i = 0; i < 2; i++) {
     for(int j = 0; j < 2; j++) {
       for(int k = 0; k < 2; k++) {
-        Serial.println(i + " " + j + " " + k);
         digitalWrite(LEDR, i);
         digitalWrite(LEDG, j);
         digitalWrite(LEDB, k);
