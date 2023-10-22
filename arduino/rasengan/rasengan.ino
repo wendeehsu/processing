@@ -24,18 +24,41 @@ void setup() {
   pinMode(buttonPin, INPUT);
 }
 
+bool hasBlink = false;
+
 void loop() {
   buttonState = digitalRead(buttonPin);
+  if (buttonState == LOW && !hasBlink) {
+    for (int i = 0; i < 10; i++) {
+      blink(30);
+    }
+    hasBlink = true;
+  }
+
   if (buttonState == LOW) {
-    cycle(30);
+      cycle(30);
   } else {
-    // off?
     rainbow(20, rainbow_color);
     rainbow_color += 1;
     if (rainbow_color > 256) {
       rainbow_color = 1;
     }
+    hasBlink = false;
   }
+}
+
+void blink(int wait) {
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, 0, 0, 0);
+  }
+  strip.show();
+  delay(wait+5);
+
+  for(uint16_t i=0; i<strip.numPixels(); i++) {
+    strip.setPixelColor(i, 255, 255, 255);
+  }
+  strip.show();
+  delay(wait);
 }
 
 void cycle(int wait) {
