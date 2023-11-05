@@ -12,3 +12,5 @@
 > When the distance between the floor and the user's chest is smaller than our defined threshold, the program will detect it as one pushup
 
 serial port result for 4 pushups:
+
+![image](https://github.com/wendeehsu/processing/assets/30789244/1af9abd6-fe78-4076-a92b-024ab8af760c)
