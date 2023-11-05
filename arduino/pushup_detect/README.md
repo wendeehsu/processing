@@ -1,8 +1,9 @@
 # Pushup Detection
 
-## Sensor
-* proximity
+## Materials
 * button
+* Arduino 33 ble sense rev2
+> We utilize the board's proximity sensor
 
 ## How does it works
 1. Tie the arduino in the user's chest (sensor facing outwards)
