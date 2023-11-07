@@ -1,9 +1,10 @@
 #include <Arduino_APDS9960.h>
 const int buttonPin = 2;
-bool hasStarted = false;
+const int speakerPin = 4;
+int pushupState = -1;
 int buttonState = 0;
-bool hasPush = false;
-const int threshold = 230; // <--- the threshold distance from a person's chest to the floor
+const int startThreshold = 230; // <--- the lowest threshold distance from a person's chest to the floor
+const int endThreshold = 235; // <--- the highest threshold distance from a person's chest to the floor
 
 void setup() {
   Serial.begin(9600);
@@ -13,29 +14,36 @@ void setup() {
     Serial.println("Error initializing APDS-9960 sensor!");
   }
   pinMode(buttonPin, INPUT);
+  pinMode(speakerPin, OUTPUT);
 }
 
 void loop() {
   // check if a proximity reading is available
   buttonState = digitalRead(buttonPin);
   if (buttonState == LOW) {
-    hasStarted = true;
+    pushupState = 0;
     Serial.println("New:");
   }
 
-  if (APDS.proximityAvailable() && hasStarted) {
+  if (APDS.proximityAvailable() && pushupState != -1) {
     int proximity = APDS.readProximity();
 
-    if (!hasPush && proximity < threshold) {
-      Serial.print("======== 1 push start -->");
-      Serial.print(proximity);
-      hasPush = true;
-    }
-    else if (hasPush && proximity > threshold) {
-      Serial.print("-->");
-      Serial.print(proximity);
-      Serial.println("--> 1 push end ========");
-      hasPush = false;
+    if (proximity > endThreshold) {
+      if (pushupState == 3) {
+        digitalWrite(speakerPin, HIGH);  // turn the speaker on
+        delay(100);
+        digitalWrite(speakerPin, LOW);
+      }
+
+      pushupState = 0;
+    } else if (proximity < startThreshold) {
+      pushupState = 2;
+    } else {
+      if (pushupState == 0) {
+        pushupState = 1;
+      } else if (pushupState == 2) {
+        pushupState = 3;
+      }
     }
   }
 
