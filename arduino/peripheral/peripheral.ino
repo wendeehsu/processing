@@ -1,16 +1,3 @@
-/*
-  BLE_Peripheral.ino
-
-  This program uses the ArduinoBLE library to set-up an Arduino Nano 33 BLE 
-  as a peripheral device and specifies a service and a characteristic. Depending 
-  of the value of the specified characteristic, an on-board LED gets on. 
-
-  The circuit:
-  - Arduino Nano 33 BLE. 
-
-  This example code is in the public domain.
-*/
-
 #include <ArduinoBLE.h>
 
 const char* deviceServiceUuid = "19b10000-e8f2-537e-4f6c-d104768a1214";
@@ -35,8 +22,10 @@ void setup() {
   BLE.setLocalName("Arduino Nano 33 BLE (Peripheral)");
   BLE.setAdvertisedService(peripheralService);
   peripheralService.addCharacteristic(firstCharacteristic);
+  peripheralService.addCharacteristic(secondCharacteristic);
   BLE.addService(peripheralService);
   firstCharacteristic.writeValue(-1);
+  secondCharacteristic.writeValue(-1);
   BLE.advertise();
 
   Serial.println("Nano 33 BLE (Peripheral Device)");
@@ -58,7 +47,11 @@ void loop() {
       if (firstCharacteristic.written()) {
          firstValue = firstCharacteristic.value();
          Serial.println(firstValue);
+         secondCharacteristic.writeValue((byte) firstValue*2);
+         Serial.print("returned: ");
+         Serial.println(firstValue*2);
        }
+      
     }
     
     Serial.println("* Disconnected to central device!");

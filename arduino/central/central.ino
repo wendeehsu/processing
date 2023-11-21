@@ -1,18 +1,3 @@
-/*
-  BLE_Central_Device.ino
-
-  This program uses the ArduinoBLE library to set-up an Arduino Nano 33 BLE Sense 
-  as a central device and looks for a specified service and characteristic in a 
-  peripheral device. If the specified service and characteristic is found in a 
-  peripheral device, the last detected value of the on-board gesture sensor of 
-  the Nano 33 BLE Sense, the APDS9960, is written in the specified characteristic. 
-
-  The circuit:
-  - Arduino Nano 33 BLE Sense. 
-
-  This example code is in the public domain.
-*/
-
 #include <ArduinoBLE.h>
 #include <Arduino_APDS9960.h>
 
@@ -95,12 +80,13 @@ void controlPeripheral(BLEDevice peripheral) {
   }
 
   BLECharacteristic firstCharacteristic = peripheral.characteristic(deviceServiceCharacteristicUuid);
+  BLECharacteristic secondCharacteristic = peripheral.characteristic(returnServiceCharacteristicUuid);
     
-  if (!firstCharacteristic) {
+  if (!firstCharacteristic || !secondCharacteristic) {
     Serial.println("* Peripheral device does not have gesture_type characteristic!");
     peripheral.disconnect();
     return;
-  } else if (!firstCharacteristic.canWrite()) {
+  } else if (!firstCharacteristic.canWrite() || !secondCharacteristic.canRead()) {
     Serial.println("* Peripheral does not have a writable gesture_type characteristic!");
     peripheral.disconnect();
     return;
@@ -114,7 +100,15 @@ void controlPeripheral(BLEDevice peripheral) {
     Serial.print(first_value);
     firstCharacteristic.writeValue((byte)first_value);
     Serial.println(" *");
-  
+
+    // this line always prints an empty line
+    Serial.println((char*) secondCharacteristic.value());
+    // code never enters this "if" statement
+    if (secondCharacteristic.written()) {
+      Serial.print("received:");
+      Serial.print((char*) secondCharacteristic.value());
+      Serial.println("!");
+    }    
   }
   Serial.println("- Peripheral device disconnected!");
 }
