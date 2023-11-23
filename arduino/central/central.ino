@@ -3,9 +3,7 @@
 
 const char* deviceServiceUuid = "19b10000-e8f2-537e-4f6c-d104768a1214";
 const char* deviceServiceCharacteristicUuid = "19b10001-e8f2-537e-4f6c-d104768a1214";
-const char* returnServiceCharacteristicUuid = "19b10001-e8f2-537e-4f6c-d104768a1215";
-
-int first_value = -1;
+int oldVal = -1;
 
 void setup() {
   Serial.begin(9600);
@@ -25,6 +23,11 @@ void setup() {
 
   Serial.println("Arduino Nano 33 BLE Sense (Central Device)");
   Serial.println(" ");
+
+  // pushup
+  if (!APDS.begin()) {
+    Serial.println("Error initializing APDS-9960 sensor!");
+  }
 }
 
 void loop() {
@@ -80,35 +83,27 @@ void controlPeripheral(BLEDevice peripheral) {
   }
 
   BLECharacteristic firstCharacteristic = peripheral.characteristic(deviceServiceCharacteristicUuid);
-  BLECharacteristic secondCharacteristic = peripheral.characteristic(returnServiceCharacteristicUuid);
     
-  if (!firstCharacteristic || !secondCharacteristic) {
+  if (!firstCharacteristic) {
     Serial.println("* Peripheral device does not have gesture_type characteristic!");
     peripheral.disconnect();
     return;
-  } else if (!firstCharacteristic.canWrite() || !secondCharacteristic.canRead()) {
+  } else if (!firstCharacteristic.canWrite()) {
     Serial.println("* Peripheral does not have a writable gesture_type characteristic!");
     peripheral.disconnect();
     return;
   }
   
   while (peripheral.connected()) {
-    delay(5000);
-    first_value = first_value + 1;
-
-    Serial.print("* Writing value: ");
-    Serial.print(first_value);
-    firstCharacteristic.writeValue((byte)first_value);
-    Serial.println(" *");
-
-    // this line always prints an empty line
-    Serial.println((char*) secondCharacteristic.value());
-    // code never enters this "if" statement
-    if (secondCharacteristic.written()) {
-      Serial.print("received:");
-      Serial.print((char*) secondCharacteristic.value());
-      Serial.println("!");
-    }    
+    // add push up detection here
+    int val = pushupDetect();
+    if (val != oldVal) {
+      Serial.print("* Writing value: ");
+      Serial.print(val);
+      firstCharacteristic.writeValue((byte)val);
+      Serial.println(" *"); 
+      oldVal = val;
+    }
   }
   Serial.println("- Peripheral device disconnected!");
 }
